@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Native Learning Plan</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222635;
+    --border: #2e3347;
+    --accent: #61dafb;
+    --accent2: #a78bfa;
+    --green: #4ade80;
+    --orange: #fb923c;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --tag-bg: #1e2a3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px 16px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .tab-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0f1117;
+    border-color: var(--accent);
+  }
+
+  .tab-btn:hover:not(.active) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .plan { display: none; max-width: 820px; margin: 0 auto; }
+  .plan.active { display: block; }
+
+  /* Profile banner */
+  .profile-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .profile-banner .icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
+
+  .profile-banner h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .profile-banner p { font-size: 0.88rem; color: var(--muted); }
+
+  .profile-banner .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .tag {
+    background: var(--tag-bg);
+    color: var(--accent);
+    border: 1px solid #2a4060;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+
+  .tag.green { color: var(--green); border-color: #1a3a2a; background: #0f2a1a; }
+  .tag.orange { color: var(--orange); border-color: #3a2a10; background: #2a1a08; }
+  .tag.purple { color: var(--accent2); border-color: #3a2a60; background: #1e1a3a; }
+
+  /* Week blocks */
+  .week {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .week-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .week-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0f1117;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .week-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .week-header .toggle {
+    color: var(--muted);
+    font-size: 1.1rem;
+    transition: transform 0.25s;
+  }
+
+  .week-body { padding: 18px 20px; }
+
+  /* Day rows */
+  .day {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 12px 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .day:last-child { border-bottom: none; }
+
+  .day-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-top: 2px;
+  }
+
+  .day-content h4 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .day-content p {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .resource-list { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+
+  .resource {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+  }
+
+  .resource-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .r-video { background: #3a1a1a; color: #f87171; }
+  .r-blog  { background: #1a2a3a; color: var(--accent); }
+  .r-docs  { background: #1a3a2a; color: var(--green); }
+  .r-code  { background: #2a1a3a; color: var(--accent2); }
+
+  .resource a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed currentColor;
+    opacity: 0.85;
+  }
+
+  .resource a:hover { opacity: 1; }
+
+  /* Project highlight */
+  .project-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 16px;
+  }
+
+  .project-box h4 {
+    color: var(--green);
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .project-box ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .project-box ul li {
+    font-size: 0.83rem;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .project-box ul li::before {
+    content: '▸';
+    color: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* Callout tip */
+  .tip {
+    background: #1a2a1a;
+    border: 1px solid #2a4a2a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #6ee7b7;
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* Prereqs */
+  .prereq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .prereq-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .prereq-card h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .prereq-card ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .prereq-card ul li {
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .prereq-card ul li::before { content: '•'; color: var(--accent2); }
+
+  /* Section label */
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin: 20px 0 10px;
+  }
+
+  @media (max-width: 560px) {
+    .prereq-grid { grid-template-columns: 1fr; }
+    .day { grid-template-columns: 1fr; gap: 4px; }
+    .day-label { font-size: 0.74rem; }
+    .header h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>React Native Learning Plan</h1>
+  <p>A hands-on, 2-week plan tailored to your background — pick your track and dive in.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('be')">🖥️ Backend Developer</button>
+  <button class="tab-btn" onclick="switchTab('ios')">📱 iOS Developer</button>
+</div>
+
+<!-- ===================== BACKEND DEV PLAN ===================== -->
+<div class="plan active" id="plan-be">
+
+  <div class="profile-banner">
+    <div class="icon">🖥️</div>
+    <div>
+      <h3>Backend Developer Track</h3>
+      <p>You know APIs, data, and server logic — but the UI and mobile layer is new. This plan bridges that gap fast with JS/TS fundamentals before jumping into React Native.</p>
+      <div class="tags">
+        <span class="tag">REST APIs ✓</span>
+        <span class="tag">Data modeling ✓</span>
+        <span class="tag orange">JS/React → learn first</span>
+        <span class="tag orange">Mobile UI → new concept</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">📋 Before You Start — Quick Prereqs (1–2 days)</div>
+  <div class="prereq-grid">
+    <div class="prereq-card">
+      <h4>JS/ES6+ You Need</h4>
+      <ul>
+        <li>Arrow functions, destructuring, spread</li>
+        <li>Promises & async/await</li>
+        <li>Array methods: map, filter, reduce</li>
+        <li>Modules: import / export</li>
+      </ul>
+    </div>
+    <div class="prereq-card">
+      <h4>React Basics You Need</h4>
+      <ul>
+        <li>JSX syntax (like HTML in JS)</li>
+        <li>Functional components</li>
+        <li>useState & useEffect hooks</li>
+        <li>Props vs. state</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <span class="week-badge">WEEK 1</span>
+      <h2>Foundation — Concepts & Core APIs</h2>
+      <span class="toggle">▼</span>
+    </div>
+    <div class="week-body">
+
+      <div class="day">
+        <div class="day-label">Day 1<br><span style="color:#4ade80;font-size:0.7rem;">SETUP</span></div>
+        <div class="day-content">
+          <h4>Environment Setup + "Hello World"</h4>
+          <p>Install Node, Expo CLI, set up your first project. Run it on your phone via Expo Go.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=0-S5a0eXPoc" target="_blank">Expo in 20 min — Fireship (YouTube)</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://docs.expo.dev/get-started/create-a-project/" target="_blank">Expo Official Quickstart</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://reactnative.dev/docs/environment-setup" target="_blank">React Native Environment Setup Docs</a></div>
+          </div>
+          <div class="tip">💡 Use Expo (not bare CLI) — no Xcode config headaches, perfect for learning.</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 2<br><span style="color:#61dafb;font-size:0.7rem;">CONCEPTS</span></div>
+        <div class="day-content">
+          <h4>Core Components: View, Text, Image, ScrollView</h4>
+          <p>Think of these as your HTML elements — but native. No div/span here.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=qSRrxpdMpVc" target="_blank">React Native Crash Course — Traversy Media</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/components-and-apis" target="_blank">Core Components Reference</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 3<br><span style="color:#61dafb;font-size:0.7rem;">STYLING</span></div>
+        <div class="day-content">
+          <h4>Styling with StyleSheet (no CSS files!)</h4>
+          <p>Flexbox is your layout engine — familiar from web but slightly different defaults (column-first). No cascading, no class selectors.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://reactnative.dev/docs/style" target="_blank">Style docs — reactnative.dev</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://reactnative.dev/docs/flexbox" target="_blank">Flexbox in React Native — official guide</a></div>
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=R2eqAgR_KlU" target="_blank">RN Styling & Layout — Net Ninja</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 4<br><span style="color:#a78bfa;font-size:0.7rem;">STATE</span></div>
+        <div class="day-content">
+          <h4>State, Props & User Input</h4>
+          <p>TextInput, Button, Touchables. How to capture user input and update UI — your first interactive screen.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=ur6I5m2nTvk" target="_blank">State & Props in React Native — Codevolution</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/handling-text-input" target="_blank">Handling Text Input — docs</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 5<br><span style="color:#a78bfa;font-size:0.7rem;">LISTS</span></div>
+        <div class="day-content">
+          <h4>FlatList & SectionList — Rendering Data</h4>
+          <p>This is where your backend mindset helps. Feed JSON data into a list component — similar to mapping over an API response.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=iMCM1NceGJY" target="_blank">FlatList Deep Dive — William Candillon</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/flatlist" target="_blank">FlatList API Reference</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 6–7<br><span style="color:#4ade80;font-size:0.7rem;">BUILD</span></div>
+        <div class="day-content">
+          <h4>🔨 Mini Project #1 — Task List App</h4>
+          <p>Build a todo app from scratch: add/remove tasks, FlatList rendering, persistent state with useState.</p>
+          <div class="project-box">
+            <h4>✅ What to Build</h4>
+            <ul>
+              <li>Input field + "Add" button to create tasks</li>
+              <li>FlatList showing all tasks</li>
+              <li>Swipe or button to mark done / delete</li>
+              <li>Style it with StyleSheet (no libraries yet)</li>
+            </ul>
+          </div>
+          <div class="resource-list" style="margin-top:10px;">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=0kL6nhutjQ8" target="_blank">Todo App Tutorial — Programming with Mosh</a></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <span class="week-badge">WEEK 2</span>
+      <h2>Navigation, APIs & Real-World App</h2>
+      <span class="toggle">▼</span>
+    </div>
+    <div class="week-body">
+
+      <div class="day">
+        <div class="day-label">Day 8<br><span style="color:#61dafb;font-size:0.7rem;">NAVIGATION</span></div>
+        <div class="day-content">
+          <h4>React Navigation — Stack + Tab Navigator</h4>
+          <p>Multi-screen apps. Stack navigation = push/pop (like UINavigationController). Tab bar = bottom tabs. You'll recognize the mental model from iOS.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=OmQCU-3KPms" target="_blank">React Navigation v6 Full Guide — Expo</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnavigation.org/docs/getting-started" target="_blank">React Navigation Official Docs</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 9<br><span style="color:#61dafb;font-size:0.7rem;">APIs</span></div>
+        <div class="day-content">
+          <h4>Fetching Data from REST APIs</h4>
+          <p>Use fetch() or Axios. You already know REST — now wire it to the UI. Loading states, error handling, useEffect for fetching on mount.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://reactnative.dev/docs/network" target="_blank">Networking Guide — reactnative.dev</a></div>
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=c7P03kkrEG8" target="_blank">Axios + React Native — Codevolution</a></div>
+          </div>
+          <div class="tip">💡 Your biggest advantage: you already understand REST, HTTP status codes, and JSON. Focus on the React side (loading/error states) not the API side.</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 10<br><span style="color:#a78bfa;font-size:0.7rem;">STORAGE</span></div>
+        <div class="day-content">
+          <h4>AsyncStorage + Local Data Persistence</h4>
+          <p>Think of it as a simple key-value store — like Redis but on-device. Persist user preferences or cached data between sessions.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://react-native-async-storage.github.io/async-storage/docs/usage/" target="_blank">AsyncStorage Usage Guide</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://blog.logrocket.com/using-react-native-asyncstorage/" target="_blank">AsyncStorage Deep Dive — LogRocket</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 11<br><span style="color:#a78bfa;font-size:0.7rem;">STATE MGT</span></div>
+        <div class="day-content">
+          <h4>Context API or Zustand for Global State</h4>
+          <p>When state needs to be shared across screens. Context for simple cases, Zustand (lightweight, like a tiny Redux) for more complex apps.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=5LrDIWkK_Bc" target="_blank">Zustand in React Native — Jack Herrington</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://blog.logrocket.com/using-react-context-in-react-native/" target="_blank">React Context in RN — LogRocket</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 12–14<br><span style="color:#4ade80;font-size:0.7rem;">BUILD</span></div>
+        <div class="day-content">
+          <h4>🔨 Final Project — Weather App (API-driven)</h4>
+          <p>Pull together everything: API fetching, navigation, FlatList, AsyncStorage for saved cities, and basic styling.</p>
+          <div class="project-box">
+            <h4>✅ What to Build</h4>
+            <ul>
+              <li>Home screen: fetch weather from OpenWeatherMap API</li>
+              <li>Search screen: search city, navigate back with result</li>
+              <li>Save favorite cities with AsyncStorage</li>
+              <li>Loading & error states on API calls</li>
+              <li>Tab navigator: Current Weather | Saved Cities</li>
+            </ul>
+          </div>
+          <div class="resource-list" style="margin-top:10px;">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=D4nhaszNW4o" target="_blank">Weather App Tutorial — Simon Grimm</a></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ===================== iOS DEV PLAN ===================== -->
+<div class="plan" id="plan-ios">
+
+  <div class="profile-banner">
+    <div class="icon">📱</div>
+    <div>
+      <h3>iOS Developer Track</h3>
+      <p>You know UIKit/SwiftUI, navigation patterns, and Apple's HIG. This plan maps React Native concepts directly to what you already know, so you move fast.</p>
+      <div class="tags">
+        <span class="tag green">UIKit / SwiftUI ✓</span>
+        <span class="tag green">Xcode / Instruments ✓</span>
+        <span class="tag green">App lifecycle ✓</span>
+        <span class="tag orange">JS/React → quick ramp-up</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">🔄 Mental Model Map — iOS → React Native</div>
+  <div class="prereq-grid">
+    <div class="prereq-card">
+      <h4>iOS Concept</h4>
+      <ul>
+        <li>UIView / SwiftUI View</li>
+        <li>UIViewController</li>
+        <li>UINavigationController</li>
+        <li>UITabBarController</li>
+        <li>@State / @Binding</li>
+        <li>URLSession</li>
+        <li>UserDefaults</li>
+      </ul>
+    </div>
+    <div class="prereq-card">
+      <h4>React Native Equivalent</h4>
+      <ul>
+        <li>View / component</li>
+        <li>Screen component</li>
+        <li>Stack Navigator</li>
+        <li>Tab Navigator</li>
+        <li>useState / props</li>
+        <li>fetch() / Axios</li>
+        <li>AsyncStorage</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <span class="week-badge">WEEK 1</span>
+      <h2>JS/JSX + React Native Fundamentals</h2>
+      <span class="toggle">▼</span>
+    </div>
+    <div class="week-body">
+
+      <div class="day">
+        <div class="day-label">Day 1<br><span style="color:#4ade80;font-size:0.7rem;">SETUP</span></div>
+        <div class="day-content">
+          <h4>Expo Setup + JS Crash Course for iOS Devs</h4>
+          <p>You'll use Expo which — unlike bare CLI — doesn't require Xcode config changes for basic apps. Get it running on your simulator or physical device in under 30 min.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=0-S5a0eXPoc" target="_blank">Expo Quick Start — Fireship</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://javascript.info/es-modern" target="_blank">Modern JS in 1 page — javascript.info</a></div>
+          </div>
+          <div class="tip">💡 Focus your JS ramp-up on: arrow functions, destructuring, async/await, and optional chaining. Skip the rest for now — you can learn as you go.</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 2<br><span style="color:#61dafb;font-size:0.7rem;">COMPONENTS</span></div>
+        <div class="day-content">
+          <h4>Components = SwiftUI Views. JSX = body property.</h4>
+          <p>A React component is just a function that returns JSX. If you've used SwiftUI, this feels very similar — declarative, composable.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=qSRrxpdMpVc" target="_blank">React Native Crash Course — Traversy Media</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/intro-react" target="_blank">React Fundamentals — reactnative.dev</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 3<br><span style="color:#61dafb;font-size:0.7rem;">STYLING</span></div>
+        <div class="day-content">
+          <h4>StyleSheet — No Auto Layout, Just Flexbox</h4>
+          <p>React Native uses Flexbox for all layout. Direction is column by default (like VStack). No Auto Layout constraints — think of it like SwiftUI's stacks and spacers.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/flexbox" target="_blank">Flexbox Layout Guide — reactnative.dev</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://medium.com/react-native-training/react-native-layout-cheat-sheet-a4190153bf7" target="_blank">RN Layout Cheat Sheet — Medium</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 4<br><span style="color:#a78bfa;font-size:0.7rem;">STATE</span></div>
+        <div class="day-content">
+          <h4>useState = @State. Props = SwiftUI bindings / init params.</h4>
+          <p>useState drives re-renders — same mental model as SwiftUI's @State. Props flow parent → child, like initializers or environment objects.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=ur6I5m2nTvk" target="_blank">Props & State — Codevolution</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://reactnative.dev/docs/state" target="_blank">State in React Native — docs</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 5<br><span style="color:#a78bfa;font-size:0.7rem;">LISTS</span></div>
+        <div class="day-content">
+          <h4>FlatList = UITableView / List in SwiftUI</h4>
+          <p>FlatList renders a scrollable list with dequeuing under the hood, just like UITableView. Provide a data array and a renderItem function.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=iMCM1NceGJY" target="_blank">FlatList Tutorial — William Candillon</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/flatlist" target="_blank">FlatList Reference</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 6–7<br><span style="color:#4ade80;font-size:0.7rem;">BUILD</span></div>
+        <div class="day-content">
+          <h4>🔨 Mini Project #1 — Contacts List UI</h4>
+          <p>Build a contacts-style list app — FlatList with avatar, name, search filter. No backend needed, just hardcoded data.</p>
+          <div class="project-box">
+            <h4>✅ What to Build</h4>
+            <ul>
+              <li>FlatList with 20+ mock contacts</li>
+              <li>Search bar that filters the list in real time</li>
+              <li>Tap a row → detail view (use useState to toggle, or simple conditional render)</li>
+              <li>Style it to look like a native contacts app</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <span class="week-badge">WEEK 2</span>
+      <h2>Navigation, APIs & Cross-Platform Thinking</h2>
+      <span class="toggle">▼</span>
+    </div>
+    <div class="week-body">
+
+      <div class="day">
+        <div class="day-label">Day 8<br><span style="color:#61dafb;font-size:0.7rem;">NAVIGATION</span></div>
+        <div class="day-content">
+          <h4>React Navigation — Stack + Tab = UINavigationController + UITabBarController</h4>
+          <p>Expo Router (file-based, like Next.js) is the modern approach — or React Navigation for manual control. Stack Navigator = push/pop. Tab Navigator = tab bar.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=OmQCU-3KPms" target="_blank">React Navigation Complete Guide</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://docs.expo.dev/router/introduction/" target="_blank">Expo Router — official docs</a></div>
+          </div>
+          <div class="tip">💡 Passing data between screens = navigation params, not segue prepareForSegue. Same concept, different syntax.</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 9<br><span style="color:#61dafb;font-size:0.7rem;">APIs</span></div>
+        <div class="day-content">
+          <h4>Networking — fetch() vs Axios</h4>
+          <p>useEffect is your viewDidLoad / onAppear. Fetch data on mount, set state, trigger re-render. Axios adds a bit of convenience over raw fetch.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/network" target="_blank">Networking Docs — reactnative.dev</a></div>
+            <div class="resource"><div class="resource-icon r-blog">📝</div><a href="https://blog.logrocket.com/data-fetching-react-native/" target="_blank">Data Fetching Patterns in RN — LogRocket</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 10<br><span style="color:#a78bfa;font-size:0.7rem;">PLATFORM</span></div>
+        <div class="day-content">
+          <h4>Platform-Specific Code & Native Modules</h4>
+          <p>Use Platform.OS to write iOS/Android-specific logic. Access camera, location, haptics via Expo SDK — similar to importing AVFoundation or CoreLocation.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://reactnative.dev/docs/platform-specific-code" target="_blank">Platform-Specific Code — docs</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://docs.expo.dev/versions/latest/" target="_blank">Expo SDK API Reference</a></div>
+          </div>
+          <div class="tip">💡 As an iOS dev, you'll naturally reach for native modules when RN falls short — that's totally valid. RN lets you drop into Swift when needed.</div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 11<br><span style="color:#a78bfa;font-size:0.7rem;">ANIMATIONS</span></div>
+        <div class="day-content">
+          <h4>Animated API + React Native Reanimated</h4>
+          <p>The Animated API = Core Animation lite. Reanimated runs on the UI thread — closer to what you're used to with CAAnimation / UIViewPropertyAnimator.</p>
+          <div class="resource-list">
+            <div class="resource"><div class="resource-icon r-video">▶</div><a href="https://www.youtube.com/watch?v=2RIbdMnZ6Yg" target="_blank">Reanimated 3 Intro — William Candillon</a></div>
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://docs.swmansion.com/react-native-reanimated/" target="_blank">Reanimated Docs — swmansion</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day">
+        <div class="day-label">Day 12–14<br><span style="color:#4ade80;font-size:0.7rem;">BUILD</span></div>
+        <div class="day-content">
+          <h4>🔨 Final Project — GitHub Profile Browser</h4>
+          <p>A multi-screen app that fetches real data, has tab navigation, and animations. Leverages what you already know about REST and polished UIs.</p>
+          <div class="project-box">
+            <h4>✅ What to Build</h4>
+            <ul>
+              <li>Search screen: enter GitHub username, fetch user profile</li>
+              <li>Profile screen: avatar, bio, follower count</li>
+              <li>Repos tab: FlatList of public repos, tap for detail</li>
+              <li>Add a Reanimated fade-in on screen transition</li>
+              <li>AsyncStorage to cache last searched user</li>
+            </ul>
+          </div>
+          <div class="resource-list" style="margin-top:10px;">
+            <div class="resource"><div class="resource-icon r-docs">📄</div><a href="https://docs.github.com/en/rest/users/users" target="_blank">GitHub REST API — free, no auth needed</a></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(t) {
+    document.querySelectorAll('.plan').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('plan-' + t).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function toggleWeek(header) {
+    const body = header.nextElementSibling;
+    const toggle = header.querySelector('.toggle');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    toggle.style.transform = open ? 'rotate(-90deg)' : 'rotate(0)';
+  }
+</script>
+</body>
+</html>
